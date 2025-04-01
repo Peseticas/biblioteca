@@ -46,6 +46,29 @@ public class Principal {
             System.out.println("5. Consultar libros sin préstamos");
             System.out.println("6. Consultar libros prestados en una fecha");
             opcion = Teclado.leerEntero("Elige una opción: ");
+            
+            switch (opcion) {
+            	case 1:
+            		
+            		break;
+            	case 2:
+            		
+            		break;
+            	case 3:
+            		
+            		break;
+            	case 4:
+            		
+            		break;
+            	case 5:
+            		
+            		break;
+            	case 6:
+            		
+            		break;
+            	default:
+            }
+            
         } while (opcion != 0);
     }
 
@@ -61,6 +84,28 @@ public class Principal {
             System.out.println("5. Consultar socios sin préstamos");
             System.out.println("6. Consultar socios con préstamos en una fecha");
             opcion = Teclado.leerEntero("Elige una opción: ");
+            
+            switch (opcion) {
+        	case 1:
+        		
+        		break;
+        	case 2:
+        		
+        		break;
+        	case 3:
+        		break;
+        	case 4:
+        		
+        		break;
+        	case 5:
+        		
+        		break;
+        	case 6:
+        		
+        		break;
+        	default:
+        }
+            
         } while (opcion != 0);
     }
 
@@ -76,11 +121,31 @@ public class Principal {
             System.out.println("5. Consultar préstamos activos");
             System.out.println("6. Consultar préstamos vencidos");
             opcion = Teclado.leerEntero("Elige una opción: ");
+            
+            switch (opcion) {
+        	case 1:
+        		
+        		break;
+        	case 2:
+        		
+        		break;
+        	case 3:
+        		
+        		break;
+        	case 4:
+        		
+        		break;
+        	case 5:
+        		
+        		break;
+        	case 6:
+        		
+        		break;
+        	default:
+        }
+            
         } while (opcion != 0);
     }
-	
-	
-	
 }
-	
+
 	
