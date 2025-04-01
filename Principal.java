@@ -48,6 +48,9 @@ public class Principal {
             opcion = Teclado.leerEntero("Elige una opción: ");
             
             switch (opcion) {
+            	case 0:
+            		System.out.println("Volviendo atrás...");
+            		break;
             	case 1:
             		
             		break;
@@ -86,25 +89,29 @@ public class Principal {
             opcion = Teclado.leerEntero("Elige una opción: ");
             
             switch (opcion) {
-        	case 1:
-        		
-        		break;
-        	case 2:
-        		
-        		break;
-        	case 3:
-        		break;
-        	case 4:
-        		
-        		break;
-        	case 5:
-        		
-        		break;
-        	case 6:
-        		
-        		break;
-        	default:
-        }
+	        	case 0:
+	        		System.out.println("Volviendo atrás...");
+	        		break;
+	        	case 1:
+	        		
+	        		break;
+	        	case 2:
+	        		
+	        		break;
+	        	case 3:
+	        		
+	        		break;
+	        	case 4:
+	        		
+	        		break;
+	        	case 5:
+	        		
+	        		break;
+	        	case 6:
+	        		
+	        		break;
+	        	default:
+            }
             
         } while (opcion != 0);
     }
@@ -123,26 +130,29 @@ public class Principal {
             opcion = Teclado.leerEntero("Elige una opción: ");
             
             switch (opcion) {
-        	case 1:
-        		
-        		break;
-        	case 2:
-        		
-        		break;
-        	case 3:
-        		
-        		break;
-        	case 4:
-        		
-        		break;
-        	case 5:
-        		
-        		break;
-        	case 6:
-        		
-        		break;
-        	default:
-        }
+	        	case 0:
+	        		System.out.println("Volviendo atrás...");
+	        		break;
+	        	case 1:
+	        		
+	        		break;
+	        	case 2:
+	        		
+	        		break;
+	        	case 3:
+	        		
+	        		break;
+	        	case 4:
+	        		
+	        		break;
+	        	case 5:
+	        		
+	        		break;
+	        	case 6:
+	        		
+	        		break;
+	        	default:
+	        }
             
         } while (opcion != 0);
     }
