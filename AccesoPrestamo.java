@@ -1,5 +1,5 @@
 package ejemploBD.dao.dao;
-
+import java.time.LocalDate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,7 +11,8 @@ import ejemploBD.config.config.ConfigSqlLite;
 import ejemploBD.modelo.modelo.Prestamo;
 
 public class AccesoPrestamo {
-		public static void insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin, String fechaDevolucion) throws BDException {
+
+	public static void insertarPrestamo(int codigoLibro, int codigoSocio, String fechaFin, String fechaDevolucion) throws BDException {
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
 	    ResultSet rs = null;
@@ -25,7 +26,7 @@ public class AccesoPrestamo {
 	        ps.setInt(1, codigoLibro);
 	        rs = ps.executeQuery();
 	        if (rs.next() && rs.getInt(1) == 0) {
-	            throw new BDException(" El libro con código " + codigoLibro + " no existe.");
+	            throw new BDException("❌ El libro con código " + codigoLibro + " no existe.");
 	        }
 
 	        // 2. Verificar que el socio existe
@@ -34,19 +35,22 @@ public class AccesoPrestamo {
 	        ps.setInt(1, codigoSocio);
 	        rs = ps.executeQuery();
 	        if (rs.next() && rs.getInt(1) == 0) {
-	            throw new BDException(" El socio con código " + codigoSocio + " no existe.");
+	            throw new BDException("❌ El socio con código " + codigoSocio + " no existe.");
 	        }
 
-	        // 3. Verificar si ya existe algún préstamo con ese libro (sin importar estado)
+	        // 3. Verificar si ya existe algún préstamo con ese libro
 	        String queryPrestamoExistente = "SELECT COUNT(*) FROM Prestamo WHERE codigo_libro = ?";
 	        ps = conexion.prepareStatement(queryPrestamoExistente);
 	        ps.setInt(1, codigoLibro);
 	        rs = ps.executeQuery();
 	        if (rs.next() && rs.getInt(1) > 0) {
-	            throw new BDException(" Ya existe un préstamo registrado con el libro código " + codigoLibro + ".");
+	            throw new BDException("❌ Ya existe un préstamo registrado con el libro código " + codigoLibro + ".");
 	        }
 
-	        // 4. Insertar el préstamo si pasa todas las validaciones
+	        // 4. Obtener la fecha actual como fecha de inicio
+	        String fechaInicio = LocalDate.now().toString(); // Formato: YYYY-MM-DD
+
+	        // 5. Insertar el préstamo
 	        String queryInsert = "INSERT INTO prestamo (codigo_libro, codigo_socio, fecha_inicio, fecha_fin, fecha_devolucion) VALUES (?, ?, ?, ?, ?)";
 	        ps = conexion.prepareStatement(queryInsert);
 	        ps.setInt(1, codigoLibro);
@@ -56,10 +60,10 @@ public class AccesoPrestamo {
 	        ps.setString(5, fechaDevolucion);
 
 	        ps.executeUpdate();
-	        System.out.println(" Préstamo insertado correctamente.");
+	        System.out.println("✅ Préstamo insertado correctamente con fecha de inicio " + fechaInicio);
 
 	    } catch (SQLException e) {
-	        throw new BDException(" Error al insertar el préstamo: " + e.getMessage());
+	        throw new BDException("❌ Error al insertar el préstamo: " + e.getMessage());
 	    } finally {
 	        try {
 	            if (rs != null) rs.close();
@@ -70,6 +74,8 @@ public class AccesoPrestamo {
 	        }
 	    }
 	}
+
+
 
 
 
