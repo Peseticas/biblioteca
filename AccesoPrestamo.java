@@ -11,54 +11,66 @@ import ejemploBD.config.config.ConfigSqlLite;
 import ejemploBD.modelo.modelo.Prestamo;
 
 public class AccesoPrestamo {
-	public static void insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin, String fechaDevolucion) throws BDException {
+		public static void insertarPrestamo(int codigoLibro, int codigoSocio, String fechaInicio, String fechaFin, String fechaDevolucion) throws BDException {
 	    PreparedStatement ps = null;
 	    Connection conexion = null;
+	    ResultSet rs = null;
 
 	    try {
-	        // Conexión a la base de datos
 	        conexion = ConfigSqlLite.abrirConexion();
 
-	        // Verificar que el libro existe
+	        // 1. Verificar que el libro existe
 	        String queryLibro = "SELECT COUNT(*) FROM Libro WHERE Codigo = ?";
 	        ps = conexion.prepareStatement(queryLibro);
 	        ps.setInt(1, codigoLibro);
-	        ResultSet rs = ps.executeQuery();
-	        if (rs.getInt(1) == 0) {
-	            throw new BDException("El libro con código " + codigoLibro + " no existe en la base de datos.");
+	        rs = ps.executeQuery();
+	        if (rs.next() && rs.getInt(1) == 0) {
+	            throw new BDException(" El libro con código " + codigoLibro + " no existe.");
 	        }
 
-	        // Verificar que el socio existe
+	        // 2. Verificar que el socio existe
 	        String querySocio = "SELECT COUNT(*) FROM Socio WHERE Codigo = ?";
 	        ps = conexion.prepareStatement(querySocio);
 	        ps.setInt(1, codigoSocio);
 	        rs = ps.executeQuery();
-	        if (rs.getInt(1) == 0) {
-	            throw new BDException("El socio con código " + codigoSocio + " no existe en la base de datos.");
+	        if (rs.next() && rs.getInt(1) == 0) {
+	            throw new BDException(" El socio con código " + codigoSocio + " no existe.");
 	        }
 
-	        // Si el libro y el socio existen, proceder con la inserción
-	        String query = "INSERT INTO prestamo (codigo_libro, codigo_socio, fecha_inicio, fecha_fin, fecha_devolucion) VALUES (?, ?, ?, ?, ?)";
-	        ps = conexion.prepareStatement(query);
+	        // 3. Verificar si ya existe algún préstamo con ese libro (sin importar estado)
+	        String queryPrestamoExistente = "SELECT COUNT(*) FROM Prestamo WHERE codigo_libro = ?";
+	        ps = conexion.prepareStatement(queryPrestamoExistente);
+	        ps.setInt(1, codigoLibro);
+	        rs = ps.executeQuery();
+	        if (rs.next() && rs.getInt(1) > 0) {
+	            throw new BDException(" Ya existe un préstamo registrado con el libro código " + codigoLibro + ".");
+	        }
 
-	        // Asignar valores a los parámetros de la consulta
+	        // 4. Insertar el préstamo si pasa todas las validaciones
+	        String queryInsert = "INSERT INTO prestamo (codigo_libro, codigo_socio, fecha_inicio, fecha_fin, fecha_devolucion) VALUES (?, ?, ?, ?, ?)";
+	        ps = conexion.prepareStatement(queryInsert);
 	        ps.setInt(1, codigoLibro);
 	        ps.setInt(2, codigoSocio);
 	        ps.setString(3, fechaInicio);
 	        ps.setString(4, fechaFin);
 	        ps.setString(5, fechaDevolucion);
 
-	        // Ejecutar la consulta de inserción
 	        ps.executeUpdate();
-	        System.out.println("Préstamo insertado correctamente.");
+	        System.out.println(" Préstamo insertado correctamente.");
+
 	    } catch (SQLException e) {
-	        throw new BDException("Error al insertar el préstamo: " + e.getMessage());
+	        throw new BDException(" Error al insertar el préstamo: " + e.getMessage());
 	    } finally {
-	        if (conexion != null) {
-	            ConfigSqlLite.cerrarConexion(conexion);
+	        try {
+	            if (rs != null) rs.close();
+	            if (ps != null) ps.close();
+	            if (conexion != null) ConfigSqlLite.cerrarConexion(conexion);
+	        } catch (SQLException e) {
+	            System.err.println("⚠️ Error al cerrar recursos: " + e.getMessage());
 	        }
 	    }
 	}
+
 
 
     
