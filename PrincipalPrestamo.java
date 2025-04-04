@@ -38,9 +38,7 @@ public class PrincipalPrestamo {
                     int codigoSocio = teclado.nextInt();
                     teclado.nextLine();
 
-                    System.out.println("¿Fecha de inicio? (Formato: YYYY-MM-DD)");
-                    String fechaInicio = teclado.nextLine();
-
+                    
                     System.out.println("¿Fecha de fin? (Formato: YYYY-MM-DD)");
                     String fechaFin = teclado.nextLine();
 
@@ -48,7 +46,8 @@ public class PrincipalPrestamo {
                     String fechaDevolucion = teclado.nextLine();
 
                     try {
-                        AccesoPrestamo.insertarPrestamo(codigoLibro, codigoSocio, fechaInicio, fechaFin, fechaDevolucion);
+                    	AccesoPrestamo.insertarPrestamo(codigoLibro, codigoSocio, fechaFin, fechaDevolucion);
+
                     } catch (BDException e) {
                         System.out.println(e.getMessage());
                     }
@@ -162,3 +161,4 @@ public class PrincipalPrestamo {
     }
     
 }
+
