@@ -105,29 +105,185 @@ public class Principal {
             System.out.println("6. Consultar libros prestados en una fecha");
             opcion = Teclado.leerEntero("Elige una opción: ");
             
-            switch (opcion) {
-            	case 0:
-            		System.out.println("Volviendo atrás...");
-            		break;
-            	case 1:
-            		
-            		break;
-            	case 2:
-            		
-            		break;
-            	case 3:
-            		
-            		break;
-            	case 4:
-            		
-            		break;
-            	case 5:
-            		
-            		break;
-            	case 6:
-            		
-            		break;
-            	default:
+            try {
+                Connection conexion = abrirConexion();
+                
+                switch (opcion) {
+                    case 0:
+                        System.out.println("Volviendo atrás...");
+                        break;
+                        
+                    case 1: // Insertar libro
+                        String isbn = Teclado.leerCadena("Introduzca el ISBN del libro: ");
+                        String titulo = Teclado.leerCadena("Introduzca el título del libro: ");
+                        String escritor = Teclado.leerCadena("Introduzca el escritor del libro: ");
+                        int año = Teclado.leerEntero("Introduzca el año de publicación del libro: ");
+                        double puntuacion = Teclado.leerReal("Introduzca la puntuación del libro: ");
+                        
+                        String sqlInsert = "INSERT INTO libro(isbn, titulo, escritor, año_publicacion, puntuacion) VALUES(?, ?, ?, ?, ?)";
+                        try (PreparedStatement pstmt = conexion.prepareStatement(sqlInsert)) {
+                            pstmt.setString(1, isbn);
+                            pstmt.setString(2, titulo);
+                            pstmt.setString(3, escritor);
+                            pstmt.setInt(4, año);
+                            pstmt.setDouble(5, puntuacion);
+                            pstmt.executeUpdate();
+                            System.out.println("Se ha insertado un libro en la base de datos.");
+                        } catch (SQLException e) {
+                            System.out.println("Error al insertar libro: " + e.getMessage());
+                        }
+                        break;
+                        
+                    case 2: // Eliminar libro
+                        int codigo = Teclado.leerEntero("Introduzca el código del libro a eliminar: ");
+                        
+                        String sqlDelete = "DELETE FROM libro WHERE codigo = ?";
+                        try (PreparedStatement pstmt = conexion.prepareStatement(sqlDelete)) {
+                            pstmt.setInt(1, codigo);
+                            int filasAfectadas = pstmt.executeUpdate();
+                            
+                            if (filasAfectadas > 0) {
+                                System.out.println("Se ha eliminado un libro de la base de datos.");
+                            } else {
+                                System.out.println("No existe ningún libro con ese código en la base de datos.");
+                            }
+                        } catch (SQLException e) {
+                            if (e.getMessage().contains("FOREIGN KEY constraint failed")) {
+                                System.out.println("El libro está referenciado en un préstamo de la base de datos.");
+                            } else {
+                                System.out.println("Error al eliminar libro: " + e.getMessage());
+                            }
+                        }
+                        break;
+                        
+                    case 3: // Consultar todos los libros
+                        String sqlSelectAll = "SELECT * FROM libro";
+                        try (Statement stmt = conexion.createStatement();
+                             ResultSet rs = stmt.executeQuery(sqlSelectAll)) {
+                            
+                            int contador = 0;
+                            while (rs.next()) {
+                                int cod = rs.getInt("codigo");
+                                String isb = rs.getString("isbn");
+                                String tit = rs.getString("titulo");
+                                String esc = rs.getString("escritor");
+                                int añoPub = rs.getInt("año_publicacion");
+                                double punt = rs.getDouble("puntuacion");
+                                
+                                System.out.printf("Libro [Código = %d, ISBN = %s,%n    Título = %s, Escritor = %s,%n    AñoPublicación = %d, Puntuación = %.1f]%n",
+                                                cod, isb, tit, esc, añoPub, punt);
+                                contador++;
+                            }
+                            
+                            if (contador == 0) {
+                                System.out.println("No se ha encontrado ningún libro en la base de datos.");
+                            } else {
+                                System.out.printf("Se han consultado %d libros de la base de datos.%n", contador);
+                            }
+                        }
+                        break;
+                        
+                    case 4: // Consultar por escritor
+                        String escritorBusqueda = Teclado.leerCadena("Introduzca el escritor a buscar: ");
+                        
+                        String sqlEscritor = "SELECT * FROM libro WHERE escritor = ? ORDER BY puntuacion DESC";
+                        try (PreparedStatement pstmt = conexion.prepareStatement(sqlEscritor)) {
+                            pstmt.setString(1, escritorBusqueda);
+                            ResultSet rs = pstmt.executeQuery();
+                            
+                            int contador = 0;
+                            while (rs.next()) {
+                                int cod = rs.getInt("codigo");
+                                String isb = rs.getString("isbn");
+                                String tit = rs.getString("titulo");
+                                String esc = rs.getString("escritor");
+                                int añoPub = rs.getInt("año_publicacion");
+                                double punt = rs.getDouble("puntuacion");
+                                
+                                System.out.printf("Libro [Código = %d, ISBN = %s,%n    Título = %s, Escritor = %s,%n    AñoPublicación = %d, Puntuación = %.1f]%n",
+                                                cod, isb, tit, esc, añoPub, punt);
+                                contador++;
+                            }
+                            
+                            if (contador == 0) {
+                                System.out.println("No existe ningún libro con ese escritor en la base de datos.");
+                            } else {
+                                System.out.printf("Se han consultado %d libros de la base de datos.%n", contador);
+                            }
+                        }
+                        break;
+                        
+                    case 5: // Consultar libros no prestados
+                        String sqlNoPrestados = "SELECT l.* FROM libro l " +
+                                               "LEFT JOIN prestamo p ON l.codigo = p.codigo_libro " +
+                                               "WHERE p.codigo_libro IS NULL";
+                        try (Statement stmt = conexion.createStatement();
+                             ResultSet rs = stmt.executeQuery(sqlNoPrestados)) {
+                            
+                            int contador = 0;
+                            while (rs.next()) {
+                                int cod = rs.getInt("codigo");
+                                String isb = rs.getString("isbn");
+                                String tit = rs.getString("titulo");
+                                String esc = rs.getString("escritor");
+                                int añoPub = rs.getInt("año_publicacion");
+                                double punt = rs.getDouble("puntuacion");
+                                
+                                System.out.printf("Libro [Código = %d, ISBN = %s,%n    Título = %s, Escritor = %s,%n    AñoPublicación = %d, Puntuación = %.1f]%n",
+                                                cod, isb, tit, esc, añoPub, punt);
+                                contador++;
+                            }
+                            
+                            if (contador == 0) {
+                                System.out.println("No existe ningún libro no prestado en la base de datos.");
+                            } else {
+                                System.out.printf("Se han consultado %d libros de la base de datos.%n", contador);
+                            }
+                        }
+                        break;
+                        
+                    case 6: // Consultar libros devueltos en fecha
+                        String fecha = Teclado.leerCadena("Introduzca la fecha de devolución (formato YYYY-MM-DD): ");
+                        
+                        String sqlDevueltos = "SELECT l.* FROM libro l " +
+                                            "JOIN prestamo p ON l.codigo = p.codigo_libro " +
+                                            "WHERE p.fecha_devolucion = ?";
+                        try (PreparedStatement pstmt = conexion.prepareStatement(sqlDevueltos)) {
+                            pstmt.setString(1, fecha);
+                            ResultSet rs = pstmt.executeQuery();
+                            
+                            int contador = 0;
+                            while (rs.next()) {
+                                int cod = rs.getInt("codigo");
+                                String isb = rs.getString("isbn");
+                                String tit = rs.getString("titulo");
+                                String esc = rs.getString("escritor");
+                                int añoPub = rs.getInt("año_publicacion");
+                                double punt = rs.getDouble("puntuacion");
+                                
+                                System.out.printf("Libro [Código = %d, ISBN = %s,%n    Título = %s, Escritor = %s,%n    AñoPublicación = %d, Puntuación = %.1f]%n",
+                                                cod, isb, tit, esc, añoPub, punt);
+                                contador++;
+                            }
+                            
+                            if (contador == 0) {
+                                System.out.println("No existe ningún libro devuelto en esa fecha en la base de datos.");
+                            } else {
+                                System.out.printf("Se han consultado %d libros de la base de datos.%n", contador);
+                            }
+                        }
+                        break;
+                        
+                    default:
+                        System.out.println("La opción de menú debe estar comprendida entre 0 y 6.");
+                }
+                
+                cerrarConexion(conexion);
+                
+            } catch (BDException e) {
+                System.out.println("Error con la base de datos: " + e.getMessage());
+            } catch (SQLException e) {
+                System.out.println("Error en la operación con la base de datos: " + e.getMessage());
             }
             
         } while (opcion != 0);
